@@ -28,12 +28,14 @@ namespace HarcosokApplication
         const string kepessegek_tabla = @"
             CREATE TABLE IF NOT EXISTS kepessegek(
                 id INTEGER AUTO_INCREMENT PRIMARY KEY,
-                nev VARCHAR(80) NOT NULL UNIQUE,
+                nev VARCHAR(80) NOT NULL,
                 leiras TEXT NOT NULL,
                 harcos_id INTEGER NOT NULL
             )
 
         ";
+
+         
 
         const string adatbazis = "CREATE DATABASE IF NOT EXISTS `cs_harcosok`;";
 
@@ -67,17 +69,65 @@ namespace HarcosokApplication
             }
             catch (Exception e)
             {
-                
-                
-                
-              
                 MessageBox.Show("Hiba: "+e);
                 throw;
                 conn.Close();
-
-
             }
             FormClosed += (Sender, e) => conn.Close();
+            var frissites = conn.CreateCommand();
+            frissites.CommandText = @"SELECT nev FROM harcosok;";
+            var olvas = frissites.ExecuteReader();
+            ComboBox_Hasznalo.Items.Clear();
+
+            while (olvas.Read())
+            {
+                var nev_f = olvas.GetString("nev");
+                ComboBox_Hasznalo.Items.Add(nev_f);
+            }
+            olvas.Close();
+            Button_Letrehoz.Click += (Sender, e) => 
+            {
+
+                if (Harcos_Neve_Text_Box.Text!=null && !Harcos_Neve_Text_Box.Text.Trim(' ').Equals(""))
+                {
+                    var ellenorzes_insert = conn.CreateCommand();
+                    string nev = Harcos_Neve_Text_Box.Text.Trim(' ');
+                    ellenorzes_insert.CommandText= @"SELECT COUNT(*) FROM harcosok WHERE nev=@nev;";
+                    ellenorzes_insert.Parameters.AddWithValue("@nev",nev);
+                    var hossz = (long)ellenorzes_insert.ExecuteScalar();
+                    MessageBox.Show(""+hossz);
+                    DateTime letrehoz=DateTime.Now;
+                    if (hossz==0)
+                    {
+                        
+                        
+                        var insert = conn.CreateCommand();
+                        insert.CommandText = @"
+                        INSERT INTO `harcosok`( `nev`, `letrehozas`) VALUES (@nev,@letrehoz);";
+                        insert.Parameters.AddWithValue("@nev",nev);
+                        insert.Parameters.AddWithValue("@letrehoz", letrehoz);
+                        insert.ExecuteNonQuery();
+                         frissites = conn.CreateCommand();
+                        frissites.CommandText=@"SELECT nev FROM harcosok;";
+                         olvas = frissites.ExecuteReader();
+                        ComboBox_Hasznalo.Items.Clear();
+
+                        while (olvas.Read())
+                        {
+                            var nev_f = olvas.GetString("nev");
+                            ComboBox_Hasznalo.Items.Add(nev_f);
+                        }
+                        olvas.Close();
+                    }
+
+                }
+
+
+
+
+
+            };
+
 
         }
     }

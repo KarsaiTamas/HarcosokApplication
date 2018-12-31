@@ -43,13 +43,13 @@
             this.Harcos_Neve_Text_Box = new System.Windows.Forms.TextBox();
             this.TextBox_Leiras = new System.Windows.Forms.TextBox();
             this.TextBox_Kepesseg_Leirasa = new System.Windows.Forms.TextBox();
-            this.ListBox_Kepesseg_Neve = new System.Windows.Forms.ListBox();
             this.ListBox_Kepessegek = new System.Windows.Forms.ListBox();
             this.ListBox_Harcosok = new System.Windows.Forms.ListBox();
             this.ComboBox_Hasznalo = new System.Windows.Forms.ComboBox();
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
+            this.TextBox_Kepesseg_Neve = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // label1
@@ -184,14 +184,6 @@
             this.TextBox_Kepesseg_Leirasa.Size = new System.Drawing.Size(208, 87);
             this.TextBox_Kepesseg_Leirasa.TabIndex = 14;
             // 
-            // ListBox_Kepesseg_Neve
-            // 
-            this.ListBox_Kepesseg_Neve.FormattingEnabled = true;
-            this.ListBox_Kepesseg_Neve.Location = new System.Drawing.Point(73, 113);
-            this.ListBox_Kepesseg_Neve.Name = "ListBox_Kepesseg_Neve";
-            this.ListBox_Kepesseg_Neve.Size = new System.Drawing.Size(166, 30);
-            this.ListBox_Kepesseg_Neve.TabIndex = 15;
-            // 
             // ListBox_Kepessegek
             // 
             this.ListBox_Kepessegek.FormattingEnabled = true;
@@ -247,18 +239,25 @@
             this.label11.TabIndex = 21;
             this.label11.Text = "Képességei:";
             // 
+            // TextBox_Kepesseg_Neve
+            // 
+            this.TextBox_Kepesseg_Neve.Location = new System.Drawing.Point(72, 114);
+            this.TextBox_Kepesseg_Neve.Name = "TextBox_Kepesseg_Neve";
+            this.TextBox_Kepesseg_Neve.Size = new System.Drawing.Size(167, 20);
+            this.TextBox_Kepesseg_Neve.TabIndex = 22;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(549, 411);
+            this.Controls.Add(this.TextBox_Kepesseg_Neve);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.Button_Hozzaad);
             this.Controls.Add(this.label9);
             this.Controls.Add(this.ComboBox_Hasznalo);
             this.Controls.Add(this.ListBox_Harcosok);
             this.Controls.Add(this.ListBox_Kepessegek);
-            this.Controls.Add(this.ListBox_Kepesseg_Neve);
             this.Controls.Add(this.TextBox_Kepesseg_Leirasa);
             this.Controls.Add(this.TextBox_Leiras);
             this.Controls.Add(this.Harcos_Neve_Text_Box);
@@ -298,13 +297,13 @@
         private System.Windows.Forms.TextBox Harcos_Neve_Text_Box;
         private System.Windows.Forms.TextBox TextBox_Leiras;
         private System.Windows.Forms.TextBox TextBox_Kepesseg_Leirasa;
-        private System.Windows.Forms.ListBox ListBox_Kepesseg_Neve;
         private System.Windows.Forms.ListBox ListBox_Kepessegek;
         private System.Windows.Forms.ListBox ListBox_Harcosok;
         private System.Windows.Forms.ComboBox ComboBox_Hasznalo;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.TextBox TextBox_Kepesseg_Neve;
     }
 }
 
