@@ -38,7 +38,7 @@ namespace HarcosokApplication
 
 
         const string adatbazis = "CREATE DATABASE IF NOT EXISTS `cs_harcosok`;";
-
+        static private List<Kepessegek>kepessegek;
         const string masodlagos_kulcs = "ALTER TABLE `kepessegek` ADD FOREIGN KEY (`harcos_id`) REFERENCES `harcosok`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT;";
         public int Id_Kereses()
             {
@@ -56,7 +56,24 @@ namespace HarcosokApplication
             olvas.Close();
             return id;
 
-}
+        }
+        public int Id_Kereses_ListBox()
+        {
+            var frissites = conn.CreateCommand();
+            var nev = ListBox_Harcosok.SelectedItem;
+            frissites.CommandText = @"SELECT id FROM harcosok WHERE nev=@nev;";
+            frissites.Parameters.AddWithValue("@nev", nev);
+            var olvas = frissites.ExecuteReader();
+
+            int id = 1;
+            while (olvas.Read())
+            {
+                id = olvas.GetInt32("id");
+            }
+            olvas.Close();
+            return id;
+
+        }
         public void Harcosok_Frissites(){
             var frissites = conn.CreateCommand();
             frissites.CommandText = @"SELECT nev FROM harcosok;";
@@ -74,15 +91,18 @@ namespace HarcosokApplication
         }
         public void Kepesseg_Frissites(int i)
         {
+            
             var frissites = conn.CreateCommand();
-            frissites.CommandText = @"SELECT nev,leiras,harcos_id FROM kepessegek WHERE harcos_id=@i;";
+            frissites.CommandText = @"SELECT id,nev,leiras,harcos_id FROM kepessegek WHERE harcos_id=@i;";
             frissites.Parameters.AddWithValue("@i", i);
             var olvas = frissites.ExecuteReader();
             ListBox_Kepessegek.Items.Clear();
+            kepessegek.Clear();
             
             while (olvas.Read())
             {
                 ListBox_Kepessegek.Items.Add(olvas.GetString("nev"));
+                kepessegek.Add(new Kepessegek(olvas.GetInt32("id"), olvas.GetString("nev")));
             }
             olvas.Close();
 
@@ -130,10 +150,11 @@ namespace HarcosokApplication
                 conn.Close();
             }
             FormClosed += (Sender, e) => conn.Close();
-
+            kepessegek = new List<Kepessegek>();
             Harcosok_Frissites();
             int id = Id_Kereses();
             Kepesseg_Frissites(id);
+            TextBox_Kepesseg_Leirasa.Text = "Nincs kiválasztott képesség";
             Button_Letrehoz.Click += (Sender, e) => 
             {
 
@@ -178,7 +199,7 @@ namespace HarcosokApplication
                     string kepesseg_nev=TextBox_Kepesseg_Neve.Text.Trim(' ');
                     string leiras = TextBox_Leiras.Text;
                     var insert = conn.CreateCommand();
-                    MessageBox.Show("asaaass");
+                    
                     
                     
                     insert.CommandText = @"
@@ -196,6 +217,64 @@ namespace HarcosokApplication
                 
  
             };
+            ComboBox_Hasznalo.SelectedIndexChanged += (sender, e) => 
+            {
+                Kepesseg_Frissites(Id_Kereses());
+                TextBox_Kepesseg_Leirasa.Text = "Nincs kiválasztott képesség";
+            };
+             ListBox_Harcosok.SelectedIndexChanged += (sender, e) => 
+            {
+                Kepesseg_Frissites(Id_Kereses_ListBox());
+                TextBox_Kepesseg_Leirasa.Text = "Nincs kiválasztott képesség";
+            };
+            ListBox_Kepessegek.SelectedIndexChanged += (sender, e) =>
+            {
+                if (ListBox_Kepessegek.SelectedIndex>-1)
+                {
+
+                
+                var kepesseg_leiras = conn.CreateCommand();
+                kepesseg_leiras.CommandText = @"SELECT leiras FROM kepessegek where id=@id;";
+                MessageBox.Show(ListBox_Kepessegek.SelectedIndex+"");
+                kepesseg_leiras.Parameters.AddWithValue("@id", kepessegek[ListBox_Kepessegek.SelectedIndex].Id);
+                
+                var olvas = kepesseg_leiras.ExecuteReader();
+
+                string nev="Nincs kiválasztott képesség";
+                while (olvas.Read())
+                {
+                    nev = olvas.GetString("leiras");
+                }
+                TextBox_Kepesseg_Leirasa.Text = nev;
+                olvas.Close();
+                }
+            };
+            Button_Modosit.Click += (sender, e) =>
+            {
+                if (ListBox_Kepessegek.SelectedItem != null)
+                {
+
+
+                    id = kepessegek[ListBox_Kepessegek.SelectedIndex].Id;
+                    string leiras = TextBox_Kepesseg_Leirasa.Text;
+                    var kepesseg_leiras = conn.CreateCommand();
+                    kepesseg_leiras.CommandText = "UPDATE kepessegek SET leiras=@leiras WHERE id=@id";
+                    kepesseg_leiras.Parameters.AddWithValue("@id", id);
+                    kepesseg_leiras.Parameters.AddWithValue("@leiras", leiras);
+                    kepesseg_leiras.ExecuteNonQuery();
+                     
+                }
+                else { MessageBox.Show("Kérem módosítás előtt válasszon ki egy képességet!"); }
+            };
+
+
+            Button_Torles.Click += (sender, e) => 
+            {
+
+                var kepesseg_torles = conn.CreateCommand();
+                kepesseg_torles.CommandText = @"DELETE FROM kepessegek WHERE id=@id;"; ;
+            };
+
 
         }
     }
