@@ -60,7 +60,9 @@ namespace HarcosokApplication
         public int Id_Kereses_ListBox()
         {
             var frissites = conn.CreateCommand();
-            var nev = ListBox_Harcosok.SelectedItem;
+            string harcos_sor = ListBox_Harcosok.SelectedItem.ToString();
+            string[]harcos= harcos_sor.Split(';');
+            var nev = harcos[0];
             frissites.CommandText = @"SELECT id FROM harcosok WHERE nev=@nev;";
             frissites.Parameters.AddWithValue("@nev", nev);
             var olvas = frissites.ExecuteReader();
@@ -76,7 +78,7 @@ namespace HarcosokApplication
         }
         public void Harcosok_Frissites(){
             var frissites = conn.CreateCommand();
-            frissites.CommandText = @"SELECT nev FROM harcosok;";
+            frissites.CommandText = @"SELECT nev,letrehozas FROM harcosok;";
             var olvas = frissites.ExecuteReader();
             ComboBox_Hasznalo.Items.Clear();
             ListBox_Harcosok.Items.Clear();
@@ -84,7 +86,7 @@ namespace HarcosokApplication
             {
                 var nev_f = olvas.GetString("nev");
                 ComboBox_Hasznalo.Items.Add(nev_f);
-                ListBox_Harcosok.Items.Add(nev_f);
+                ListBox_Harcosok.Items.Add(nev_f + ";" + olvas.GetDateTime("letrehozas"));
             }
             olvas.Close();
 
@@ -158,27 +160,27 @@ namespace HarcosokApplication
             Button_Letrehoz.Click += (Sender, e) => 
             {
 
-                if (Harcos_Neve_Text_Box.Text!=null && !Harcos_Neve_Text_Box.Text.Trim(' ').Equals(""))
+                if (Harcos_Neve_Text_Box.Text != null && !Harcos_Neve_Text_Box.Text.Trim(' ', ';').Equals(""))
                 {
                     var ellenorzes_insert = conn.CreateCommand();
-                    string nev = Harcos_Neve_Text_Box.Text.Trim(' ');
-                    ellenorzes_insert.CommandText= @"SELECT COUNT(*) FROM harcosok WHERE nev=@nev;";
-                    ellenorzes_insert.Parameters.AddWithValue("@nev",nev);
+                    string nev = Harcos_Neve_Text_Box.Text.Trim(' ', ';');
+                    ellenorzes_insert.CommandText = @"SELECT COUNT(*) FROM harcosok WHERE nev=@nev;";
+                    ellenorzes_insert.Parameters.AddWithValue("@nev", nev);
                     var hossz = (long)ellenorzes_insert.ExecuteScalar();
-                     
-                    DateTime letrehoz=DateTime.Now;
-                    if (hossz==0)
+
+                    DateTime letrehoz = DateTime.Now;
+                    if (hossz == 0)
                     {
-                        
-                        
+
+
                         var insert = conn.CreateCommand();
                         insert.CommandText = @"
                         INSERT INTO `harcosok`( `nev`, `letrehozas`) VALUES (@nev,@letrehoz);";
-                        insert.Parameters.AddWithValue("@nev",nev);
+                        insert.Parameters.AddWithValue("@nev", nev);
                         insert.Parameters.AddWithValue("@letrehoz", letrehoz);
                         insert.ExecuteNonQuery();
                         Harcosok_Frissites();
-                        
+                        MessageBox.Show("Karakter létrehozva!");
                     }
                     else
                     {
@@ -186,6 +188,7 @@ namespace HarcosokApplication
                     }
 
                 }
+                else { MessageBox.Show("Kérem adjon meg egy érvényes nevet!"); }
             };
             Button_Hozzaad.Click += (Sender, e) => 
             {
@@ -213,12 +216,14 @@ namespace HarcosokApplication
 
                     ComboBox_Hasznalo.SelectedIndex = kivalasztott;
                     ListBox_Harcosok.SelectedIndex = kivalasztott;
+                    MessageBox.Show("Képesség hozzáadva!");
                     }
                 
  
             };
             ComboBox_Hasznalo.SelectedIndexChanged += (sender, e) => 
             {
+                ListBox_Harcosok.SelectedIndex = ComboBox_Hasznalo.SelectedIndex;
                 Kepesseg_Frissites(Id_Kereses());
                 TextBox_Kepesseg_Leirasa.Text = "Nincs kiválasztott képesség";
             };
@@ -235,7 +240,7 @@ namespace HarcosokApplication
                 
                 var kepesseg_leiras = conn.CreateCommand();
                 kepesseg_leiras.CommandText = @"SELECT leiras FROM kepessegek where id=@id;";
-                MessageBox.Show(ListBox_Kepessegek.SelectedIndex+"");
+                 
                 kepesseg_leiras.Parameters.AddWithValue("@id", kepessegek[ListBox_Kepessegek.SelectedIndex].Id);
                 
                 var olvas = kepesseg_leiras.ExecuteReader();
@@ -262,7 +267,7 @@ namespace HarcosokApplication
                     kepesseg_leiras.Parameters.AddWithValue("@id", id);
                     kepesseg_leiras.Parameters.AddWithValue("@leiras", leiras);
                     kepesseg_leiras.ExecuteNonQuery();
-                     
+                    MessageBox.Show("Sikeres módosítás!");
                 }
                 else { MessageBox.Show("Kérem módosítás előtt válasszon ki egy képességet!"); }
             };
@@ -270,9 +275,19 @@ namespace HarcosokApplication
 
             Button_Torles.Click += (sender, e) => 
             {
+                if (ListBox_Kepessegek.SelectedItem!=null)
+                {
 
-                var kepesseg_torles = conn.CreateCommand();
-                kepesseg_torles.CommandText = @"DELETE FROM kepessegek WHERE id=@id;"; ;
+
+                    var kepesseg_torles = conn.CreateCommand();
+                    kepesseg_torles.CommandText = @"DELETE FROM kepessegek WHERE id=@id;";
+                    kepesseg_torles.Parameters.AddWithValue("@id", kepessegek[ListBox_Kepessegek.SelectedIndex].Id);
+                    kepesseg_torles.ExecuteNonQuery();
+                    Kepesseg_Frissites(Id_Kereses_ListBox());
+                    TextBox_Kepesseg_Leirasa.Text = "Nincs kiválasztott képesség";
+                    MessageBox.Show("Sikeres törlés!");
+                }
+                else { MessageBox.Show("Nincs kiválasztva képesség"); }
             };
 
 
